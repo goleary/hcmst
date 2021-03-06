@@ -2,29 +2,44 @@ if (!require("pacman")) install.packages("pacman")
 
 pacman::p_load(
   tidyverse, 
-  psych, 
   broom,
   xgboost,
   caret,
   plumber
 )
 
-#* @apiTitle API de clasificacion de flores
-#* @param petal_length Longitud del Petalo 
-#* @param petal_width Ancho del Petalo 
-#* @param sepal_length Longitud del Sepalo 
-#* @param sepal_width Ancho del Sepalo 
-#* @post /clasificador
+#* @apiTitle API marital status
+#* @param income  
+#* @param education
+#* @param age_bin 
+#* @get /predict
 
-function(income, education, age_bin){
+marital_status_predict <- function(income, education, age_bin){
   
-  load(&quot;model.RData&quot;)
+  load('./model.RData')
   
-  test = c(income, education, age_bin)
-  test = sapply(test, as.numeric)
-  test = data.frame(matrix(test, ncol = 4))
+  test <- 
+    c(income, education, age_bin)
   
-  colnames(test) = colnames(iris[,1:4])
-  predict(model, test)
+  test <-
+    test %>% 
+    t() %>% 
+    as.data.frame() 
+  
+  colnames(test) <- 
+    c("income", "education", "age_bin")
+  
+  test <-
+    test %>% 
+    mutate_at(vars(income:age_bin), as.numeric)
+  
+  test <-
+    as.matrix(test)
+  
+  predict(xgb.fit, test)
   
 }
+
+marital_status_predict("122250", "12", "3")
+
+
