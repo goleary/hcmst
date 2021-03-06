@@ -40,6 +40,9 @@ marital_status_predict <- function(income, education, age_bin){
   
 }
 
-marital_status_predict("122250", "12", "3")
-
-
+# marital_status_predict("122250", "12", "3")
+# 
+# root <- pr("plumber.R")
+# root
+# root %>% pr_run()
+# 
