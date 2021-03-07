@@ -2,9 +2,7 @@ if (!require("pacman")) install.packages("pacman")
 
 pacman::p_load(
   tidyverse, 
-  broom,
   xgboost,
-  caret,
   plumber
 )
 
