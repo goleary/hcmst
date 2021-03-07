@@ -1,10 +1,7 @@
 if (!require("pacman")) install.packages("pacman")
 
 pacman::p_load(
-  tidyverse, 
-  broom,
   xgboost,
-  caret,
   plumber
 )
 
@@ -21,17 +18,14 @@ marital_status_predict <- function(income, education, age_bin){
   test <- 
     c(income, education, age_bin)
   
-  test <-
-    test %>% 
-    t() %>% 
-    as.data.frame() 
+  test = sapply(test, as.numeric)
+  test = data.frame(matrix(test, ncol = 3))
+  
   
   colnames(test) <- 
     c("income", "education", "age_bin")
   
-  test <-
-    test %>% 
-    mutate_at(vars(income:age_bin), as.numeric)
+
   
   test <-
     as.matrix(test)
