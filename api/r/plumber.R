@@ -1,9 +1,5 @@
-if (!require("pacman")) install.packages("pacman")
-
-pacman::p_load(
-  xgboost,
-  plumber
-)
+library(xgboost)
+library(plumber)
 
 #* @apiTitle API marital status
 #* @param income  
