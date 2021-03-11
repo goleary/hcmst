@@ -14,10 +14,19 @@ export default function Home() {
     event.preventDefault();
     console.log("submitting");
     const url = new URL("/api/predict", window.location);
+    const writeUrl = new URL("/api/write", window.location);
     url.search = new URLSearchParams({ income, age_bin: age, education });
+    writeUrl.search = new URLSearchParams({ income, age_bin: age, education });
+    fetch(writeUrl);
     const result = await fetch(url);
     const text = await result.text();
     setResult(text);
+  };
+
+  const handleWrite = async () => {
+    const result = await fetch("/api/write");
+    const text = await result.text();
+    console.log(text);
   };
   return (
     <div className={styles.container}>
@@ -76,6 +85,7 @@ export default function Home() {
             <input type="submit" value="Submit" disabled={!ready} />
           </form>
         </div>
+        <button onClick={handleWrite}>write</button>
         {result && (
           <div>
             <h5>result</h5>
