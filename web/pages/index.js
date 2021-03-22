@@ -14,10 +14,7 @@ export default function Home() {
     event.preventDefault();
     console.log("submitting");
     const url = new URL("/api/predict", window.location);
-    const writeUrl = new URL("/api/write", window.location);
-    url.search = new URLSearchParams({ income, age_bin: age, education });
-    writeUrl.search = new URLSearchParams({ income, age_bin: age, education });
-    fetch(writeUrl);
+    url.search = new URLSearchParams({ income, ageBin: age, education });
     const result = await fetch(url);
     const text = await result.text();
     setResult(text);
