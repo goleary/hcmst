@@ -22,18 +22,18 @@ const handler: NextApiHandler = async (req, res) => {
     url.searchParams.append("income", income);
     url.searchParams.append("education", education);
     url.searchParams.append("age_bin", ageBin);
+
+    const result = await fetch(url.toString());
+    const prediction = await result.text();
     const { id } = await prisma.input.create({
       data: {
         income: parseInt(income, 10),
         ageBin: parseInt(ageBin, 10),
         education: parseInt(education, 10),
+        prediction,
       },
     });
-    console.log("id of written doc: ", id);
-    const result = await fetch(url.toString());
-    const text = await result.text();
-    console.log({ text });
-    res.send(text);
+    res.json({ prediction, id });
   } catch (error) {
     console.log("error: ", error);
     res.status(500).json({ error });
