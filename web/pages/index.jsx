@@ -8,22 +8,27 @@ export default function Home() {
   const [income, setIncome] = useState();
 
   const ready = education && age && income;
-
-  const [result, setResult] = useState();
+  const [predictionResult, setPredictionResult] = useState();
+  const [validateResult, setValidateResult] = useState();
   const handleSubmit = async (event) => {
     event.preventDefault();
-    console.log("submitting");
     const url = new URL("/api/predict", window.location);
     url.search = new URLSearchParams({ income, ageBin: age, education });
-    const result = await fetch(url);
-    const text = await result.text();
-    setResult(text);
+    const response = await fetch(url);
+    const result = await response.json();
+    setPredictionResult(result);
   };
 
-  const handleWrite = async () => {
-    const result = await fetch("/api/write");
-    const text = await result.text();
-    console.log(text);
+  const handleValidate = async (validate) => {
+    const resp = await fetch(`/api/validate`, {
+      method: "POST",
+      body: JSON.stringify({
+        id: predictionResult.id,
+        validate,
+      }),
+    });
+    const result = await resp.json();
+    setValidateResult(result);
   };
   return (
     <div className={styles.container}>
@@ -82,11 +87,14 @@ export default function Home() {
             <input type="submit" value="Submit" disabled={!ready} />
           </form>
         </div>
-        <button onClick={handleWrite}>write</button>
-        {result && (
+
+        {predictionResult && (
           <div>
             <h5>result</h5>
-            <code>{result}</code>
+            <code>{JSON.stringify(predictionResult)}</code>
+            <button onClick={() => handleValidate(true)}>true</button>
+            <button onClick={() => handleValidate(false)}>false</button>
+            <code>{JSON.stringify(validateResult)}</code>
           </div>
         )}
       </main>
