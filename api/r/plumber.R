@@ -13,7 +13,7 @@ marital_status_predict <- function(income, education, age_bin){
   
   load('./model.RData')
   
-  #test = c("52000", "8", "2")
+  test = c("52000", "8", "2")
   
   test = c(income, education, age_bin)
   test = sapply(test, as.numeric)
