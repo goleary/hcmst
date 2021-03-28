@@ -37,7 +37,7 @@ marital_status_predict <- function(income, education, age_bin){
       "divorced" = results$probs[3],
       "separated" = results$probs[4],
       "never_married" = results$probs[5],
-      "living_with_your_partner" = results$probs[6]
+      "living_with_partner" = results$probs[6]
     )
   
   return(results)
