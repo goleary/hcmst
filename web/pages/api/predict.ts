@@ -24,13 +24,13 @@ const handler: NextApiHandler = async (req, res) => {
     url.searchParams.append("age_bin", ageBin);
 
     const result = await fetch(url.toString());
-    const prediction = await result.text();
+    const prediction = await result.json();
     const { id } = await prisma.input.create({
       data: {
         income: parseInt(income, 10),
         ageBin: parseInt(ageBin, 10),
         education: parseInt(education, 10),
-        prediction,
+        prediction: JSON.stringify(prediction),
       },
     });
     res.json({ prediction, id });

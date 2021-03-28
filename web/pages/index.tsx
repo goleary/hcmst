@@ -1,35 +1,74 @@
 import Head from "next/head";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import styles from "../styles/Home.module.css";
 
+type RelationshipStatus =
+  | "maried"
+  | "widowed"
+  | "divorced"
+  | "separated"
+  | "never_maried"
+  | "living_with_partner";
+type Prediction = Record<RelationshipStatus, number>;
+
+type ApiResponse = {
+  id: number;
+  prediction: Prediction;
+};
+
 export default function Home() {
-  const [education, setEducation] = useState();
-  const [age, setAge] = useState();
-  const [income, setIncome] = useState();
+  const [education, setEducation] = useState<string>();
+  const [age, setAge] = useState<string>();
+  const [income, setIncome] = useState<string>();
 
   const ready = education && age && income;
-  const [predictionResult, setPredictionResult] = useState();
-  const [validateResult, setValidateResult] = useState();
+  const [predictionResult, setPredictionResult] = useState<ApiResponse>();
+  const [validateResult, setValidateResult] = useState<any>();
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const url = new URL("/api/predict", window.location);
-    url.search = new URLSearchParams({ income, ageBin: age, education });
-    const response = await fetch(url);
+    const url = new URL("/api/predict", window.location.toString());
+    url.search = new URLSearchParams({
+      income: income,
+      ageBin: age,
+      education: education,
+    }).toString();
+    const response = await fetch(url.toString());
     const result = await response.json();
     setPredictionResult(result);
   };
 
   const handleValidate = async (validate) => {
+    if (!predictionResult?.id) {
+      throw Error("can't store validated result with no id");
+    }
     const resp = await fetch(`/api/validate`, {
       method: "POST",
       body: JSON.stringify({
-        id: predictionResult.id,
+        id: predictionResult?.id,
         validate,
       }),
     });
     const result = await resp.json();
     setValidateResult(result);
   };
+  const predictedStatus = useMemo(() => {
+    if (!predictionResult?.prediction) {
+      return undefined;
+    }
+    const prediction = predictionResult.prediction;
+    let maxRelationshipStatus: RelationshipStatus;
+    // TODO: do this without Object.keys & casting (may not be possible)
+    Object.keys(predictionResult.prediction).forEach((key) => {
+      if (!maxRelationshipStatus) {
+        maxRelationshipStatus = key as RelationshipStatus;
+      } else if (prediction[key] > predictionResult[maxRelationshipStatus]) {
+        maxRelationshipStatus = key as RelationshipStatus;
+      }
+    });
+
+    return maxRelationshipStatus;
+  }, [predictionResult]);
+
   return (
     <div className={styles.container}>
       <Head>
@@ -53,14 +92,14 @@ export default function Home() {
               value={education}
               onChange={(event) => setEducation(event.target.value)}
             >
-              <option disabled selected value>
+              <option disabled selected>
                 {" "}
                 -- select an option --{" "}
               </option>
-              <option value={12}>GED</option>
-              <option value={13}>Bachelor Degree</option>
-              <option value={14}>Master's Degree</option>
-              <option value={15}>PhD</option>
+              <option value={9}>GED</option>
+              <option value={12}>Bachelor Degree</option>
+              <option value={13}>Master's Degree</option>
+              <option value={14}>PhD</option>
             </select>
             <label htmlFor="age">Age bucket:</label>
 
@@ -69,7 +108,7 @@ export default function Home() {
               value={age}
               onChange={(event) => setAge(event.target.value)}
             >
-              <option disabled selected value>
+              <option disabled selected>
                 {" "}
                 -- select an option --{" "}
               </option>
@@ -89,9 +128,10 @@ export default function Home() {
         </div>
 
         {predictionResult && (
-          <div>
+          <div style={{ display: "flex", flexDirection: "column" }}>
             <h5>result</h5>
-            <code>{JSON.stringify(predictionResult)}</code>
+            <code>{predictedStatus}</code>
+            <code>{JSON.stringify(predictionResult?.prediction)}</code>
             <button onClick={() => handleValidate(true)}>true</button>
             <button onClick={() => handleValidate(false)}>false</button>
             <code>{JSON.stringify(validateResult)}</code>
